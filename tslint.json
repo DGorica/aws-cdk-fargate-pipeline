@@ -1,0 +1,21 @@
+{
+  "defaultSeverity": "warning",
+  "extends": ["tslint:latest"],
+  "jsRules": {},
+  "rules": {
+    "trailing-comma": [
+      false,
+      {
+        "multiline": "always",
+        "singleline": "never",
+        "functions": "never"
+      }
+    ],
+    "object-literal-sort-keys": false,
+    "ordered-imports": false
+  },
+  "rulesDirectory": [],
+  "linterOptions": {
+    "exclude": ["/node_modules", "/@aws-cdk"]
+  }
+}
