@@ -11,7 +11,8 @@ export class ECSPipelineStack extends cdk.Stack {
     super(scope, id, props);
 
     const artifactBucket = new s3.Bucket(this, "Artifact", {
-      bucketName: "fargate-cdk-artifactpipelinebucket"
+      bucketName: "fargate-cdk-artifactpipelinebucket",
+      versioned: true
     });
 
     const containerRepo = ecr.Repository.import(this, "ECR", {
