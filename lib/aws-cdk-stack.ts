@@ -9,7 +9,6 @@ const clusterName: string = "FirstCDK-ECSCluster";
 export class AwsCdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
     // Select VPC via tags
     const provider = new ec2.VpcNetworkProvider(this, {
       tags: {
@@ -19,9 +18,12 @@ export class AwsCdkStack extends cdk.Stack {
     const vpc = VpcNetwork.import(this, "VPC", provider.vpcProps);
 
     // Create an ECR resource and clean-up lifecycle rule
-    const repository = new ecr.Repository(this, "ECR");
+    const repository = new ecr.Repository(this, "ECR", {
+      repositoryName: "fargate-ecr"
+    });
     repository.addLifecycleRule({ tagPrefixList: ["dev"], maxImageCount: 10 });
     repository.addLifecycleRule({ maxImageAgeDays: 7 });
+    repository.export();
 
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, clusterName, { vpc });

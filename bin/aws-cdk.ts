@@ -5,12 +5,12 @@ import { AwsCdkStack } from "../lib/aws-cdk-stack";
 import { ECSPipelineStack } from "../lib/code_pipeline-stack";
 
 const app = new cdk.App();
-const fargatecdk = new AwsCdkStack(app, "CDK-Fargate-Stack");
+const fargatecdk = new AwsCdkStack(app, "CDK-Fargate-Stack", {
+  env: { region: "ap-southeast-2" }
+});
 fargatecdk.node.apply(new cdk.Tag("StackType", "AWS-CDK"));
 
-const pipeline = new ECSPipelineStack(app, "CDK-Pipeline-Stack");
+const pipeline = new ECSPipelineStack(app, "CDK-Pipeline-Stack", {
+  env: { region: "ap-southeast-2" }
+});
 pipeline.node.apply(new cdk.Tag("StackType", "AWS-CDK"));
-
-if (fargatecdk.region !== "au-southeast-2") {
-  fargatecdk.node.addError("myStack is not in Sydney");
-}
