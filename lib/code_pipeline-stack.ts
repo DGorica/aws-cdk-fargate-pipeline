@@ -16,15 +16,14 @@ export class ECSPipelineStack extends cdk.Stack {
     });
 
     const containerRepo = ecr.Repository.import(this, "ECR", {
-      repositoryName: "fargate-ecr",
+      repositoryName: "fargate-ecr"
     });
     const repouri = containerRepo.repositoryUri.toString();
 
     const buildProject = new codebuild.PipelineProject(this, "Build", {
       description: "Build project for the Fargate pipeline",
       environment: {
-        buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_DOCKER_18_09_0,
-        environmentVariables: ["RepoName"]: repouri
+        buildImage: codebuild.LinuxBuildImage.UBUNTU_14_04_DOCKER_18_09_0
       },
       buildSpec: {
         version: "0.2",

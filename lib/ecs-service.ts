@@ -31,12 +31,13 @@ export class EcsService extends cdk.Construct {
     const service = new ecs.FargateService(this, "Service", {
       cluster: props.cluster,
       taskDefinition: fargateTaskDefinition,
-      desiredCount: 3,
-      serviceName: props.serviceName
+      desiredCount: 2,
+      serviceName: props.serviceName,
+      assignPublicIp: true
     });
 
     // Setup AutoScaling policy
-    const scaling = service.autoScaleTaskCount({ maxCapacity: 3 });
+    const scaling = service.autoScaleTaskCount({ maxCapacity: 4 });
     scaling.scaleOnCpuUtilization("CpuScaling", {
       targetUtilizationPercent: 70,
       scaleInCooldownSec: 60,

@@ -3,7 +3,7 @@ import { VpcNetwork } from "@aws-cdk/aws-ec2";
 import ecr = require("@aws-cdk/aws-ecr");
 import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
-import EcsService from "./ecs-service";
+import { EcsService } from "./ecs-service";
 
 const clusterName: string = "CDK-ECSCluster";
 
@@ -33,6 +33,7 @@ export class AwsCdkStack extends cdk.Stack {
     cluster.export();
 
     // Instantiate Amazon ECS Service with an automatic load balancer
+
     const ecsService1 = new ecs.LoadBalancedFargateService(
       this,
       "FargateService1",
