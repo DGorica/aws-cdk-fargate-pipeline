@@ -1,16 +1,12 @@
 import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
-import { ServiceNamespace } from "@aws-cdk/aws-applicationautoscaling";
 
-interface IECSClusterProps {
-  clusterImport: ecs.Cluster;
+export interface IECSClusterProps {
+  cluster: ecs.Cluster;
   serviceName: string;
 }
 
 export class EcsService extends cdk.Construct {
-  // allow access to the cluster props
-  public readonly clusterImport: ecs.Cluster;
-
   constructor(scope: cdk.Construct, id: string, props: IECSClusterProps) {
     super(scope, id);
 
@@ -28,15 +24,28 @@ export class EcsService extends cdk.Construct {
     const container = fargateTaskDefinition.addContainer("WebContainer", {
       image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
       privileged: true,
-      hostname: "ServiceName"
+      hostname: props.serviceName
     });
 
     // Create service
     const service = new ecs.FargateService(this, "Service", {
-      clusterImport
+      cluster: props.cluster,
       taskDefinition: fargateTaskDefinition,
       desiredCount: 3,
-      serviceName,
+      serviceName: props.serviceName
+    });
+
+    // Setup AutoScaling policy
+    const scaling = service.autoScaleTaskCount({ maxCapacity: 3 });
+    scaling.scaleOnCpuUtilization("CpuScaling", {
+      targetUtilizationPercent: 70,
+      scaleInCooldownSec: 60,
+      scaleOutCooldownSec: 60
+    });
+    scaling.scaleOnMemoryUtilization("MemoryScaling", {
+      targetUtilizationPercent: 50,
+      scaleInCooldownSec: 60,
+      scaleOutCooldownSec: 60
     });
   }
 }

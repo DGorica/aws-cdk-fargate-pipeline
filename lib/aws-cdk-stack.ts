@@ -3,12 +3,14 @@ import { VpcNetwork } from "@aws-cdk/aws-ec2";
 import ecr = require("@aws-cdk/aws-ecr");
 import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
+import EcsService from "./ecs-service";
 
 const clusterName: string = "CDK-ECSCluster";
 
 export class AwsCdkStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
     // Select VPC via tags
     const provider = new ec2.VpcNetworkProvider(this, {
       tags: {
@@ -17,6 +19,7 @@ export class AwsCdkStack extends cdk.Stack {
     });
     const vpc = VpcNetwork.import(this, "VPC", provider.vpcProps);
     vpc.export();
+
     // Create an ECR resource and clean-up lifecycle rule
     const repository = new ecr.Repository(this, "ECR", {
       repositoryName: "fargate-ecr"
@@ -28,6 +31,7 @@ export class AwsCdkStack extends cdk.Stack {
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, clusterName, { vpc });
     cluster.export();
+
     // Instantiate Amazon ECS Service with an automatic load balancer
     const ecsService1 = new ecs.LoadBalancedFargateService(
       this,
@@ -41,17 +45,10 @@ export class AwsCdkStack extends cdk.Stack {
       }
     );
 
-    // Setup AutoScaling policy
-    const scaling = ecsService1.service.autoScaleTaskCount({ maxCapacity: 3 });
-    scaling.scaleOnCpuUtilization("CpuScaling", {
-      targetUtilizationPercent: 70,
-      scaleInCooldownSec: 60,
-      scaleOutCooldownSec: 60
-    });
-    scaling.scaleOnMemoryUtilization("MemoryScaling", {
-      targetUtilizationPercent: 50,
-      scaleInCooldownSec: 60,
-      scaleOutCooldownSec: 60
+    // Create a new service
+    const service2 = new EcsService(this, "service2", {
+      cluster,
+      serviceName: "Service2"
     });
   }
 }
