@@ -4,7 +4,7 @@ import ecr = require("@aws-cdk/aws-ecr");
 import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
 
-const clusterName: string = "FirstCDK-ECSCluster";
+const clusterName: string = "CDK-ECSCluster";
 
 export class AwsCdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -16,7 +16,7 @@ export class AwsCdkStack extends cdk.Stack {
       }
     });
     const vpc = VpcNetwork.import(this, "VPC", provider.vpcProps);
-
+    vpc.export();
     // Create an ECR resource and clean-up lifecycle rule
     const repository = new ecr.Repository(this, "ECR", {
       repositoryName: "fargate-ecr"
@@ -27,7 +27,7 @@ export class AwsCdkStack extends cdk.Stack {
 
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, clusterName, { vpc });
-
+    cluster.export();
     // Instantiate Amazon ECS Service with an automatic load balancer
     const ecsService1 = new ecs.LoadBalancedFargateService(
       this,

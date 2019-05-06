@@ -1,13 +1,14 @@
 # Project FargateCDK
 
-- Build an ECS Fargate cluster inc all latest feature //Done
-- Deploy at least 2 services (Make the ecs service a separate class)
+- Build an ECS Fargate cluster
+- Deploy a new defined service construct
 - Deploy App Mesh
 - Build a pipeline to test diff deployment methods
+- Enable monitoring / Increase resiliance
 
 ## Pipeline Design
 
-- Use git as source
+- Use S3 as source
 - Build container image, scan and push to ECR
 - Build Fargate cluster
 - Deploy first service and test endpoint

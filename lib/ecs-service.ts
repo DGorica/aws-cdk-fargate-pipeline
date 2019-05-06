@@ -1,15 +1,17 @@
 import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
+import { ServiceNamespace } from "@aws-cdk/aws-applicationautoscaling";
 
-interface ECSClusterProps {
+interface IECSClusterProps {
   clusterImport: ecs.Cluster;
+  serviceName: string;
 }
 
 export class EcsService extends cdk.Construct {
   // allow access to the cluster props
-  public readonly cluster: ecs.Cluster;
+  public readonly clusterImport: ecs.Cluster;
 
-  constructor(scope: cdk.Construct, id: string, props: ECSClusterProps) {
+  constructor(scope: cdk.Construct, id: string, props: IECSClusterProps) {
     super(scope, id);
 
     // Define Task Def
@@ -24,16 +26,17 @@ export class EcsService extends cdk.Construct {
 
     // Associate container to task def
     const container = fargateTaskDefinition.addContainer("WebContainer", {
-      // Use an image from DockerHub
-      image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample")
-      // ... other options here ...
+      image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
+      privileged: true,
+      hostname: "ServiceName"
     });
 
     // Create service
     const service = new ecs.FargateService(this, "Service", {
-      cluster
+      clusterImport
       taskDefinition: fargateTaskDefinition,
-      desiredCount: 3
+      desiredCount: 3,
+      serviceName,
     });
   }
 }
