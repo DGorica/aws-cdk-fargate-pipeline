@@ -1,6 +1,5 @@
 import ec2 = require("@aws-cdk/aws-ec2");
 import { VpcNetwork } from "@aws-cdk/aws-ec2";
-import ecr = require("@aws-cdk/aws-ecr");
 import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
 import { EcsService } from "./ecs-service";

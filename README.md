@@ -2,6 +2,7 @@
 
 - Build an ECS Fargate cluster
 - Deploy a new defined service construct
+- Enable service discover
 - Deploy App Mesh
 - Build a pipeline to test diff deployment methods
 - Enable monitoring / Increase resiliance

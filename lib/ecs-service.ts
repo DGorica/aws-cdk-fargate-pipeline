@@ -2,6 +2,7 @@ import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
 import elbv2 = require("@aws-cdk/aws-elasticloadbalancingv2");
 
+// Interface for public ecs service
 export interface IECSClusterProps {
   cluster: ecs.Cluster;
   serviceName: string;
@@ -23,8 +24,10 @@ export class EcsService extends cdk.Construct {
       targetType: elbv2.TargetType.Ip,
       healthCheck: {
         path: "/",
-        port: "80",
-        protocol: elbv2.Protocol.Http
+        port: props.port.toString(),
+        protocol: elbv2.Protocol.Http,
+        intervalSecs: 60,
+        timeoutSeconds: 5
       }
     });
     const listener = alb.addListener("Listen", {
@@ -32,6 +35,11 @@ export class EcsService extends cdk.Construct {
     });
     listener.addTargetGroups("TG", {
       targetGroups: [tg]
+    });
+
+    // create a task definition with CloudWatch Logs
+    const logging = new ecs.AwsLogDriver(this, "AppLogging", {
+      streamPrefix: "webapp"
     });
 
     // Define Task Def
@@ -47,11 +55,13 @@ export class EcsService extends cdk.Construct {
     // Associate container to task def
     const container = fargateTaskDefinition
       .addContainer("WebContainer", {
-        image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample")
+        image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
+        logging
       })
       .addPortMappings({
         containerPort: 80,
-        hostPort: 80
+        hostPort: 80,
+        protocol: ecs.Protocol.Tcp
       });
 
     // Create service
@@ -65,7 +75,7 @@ export class EcsService extends cdk.Construct {
 
     tg.addTarget(service);
 
-    // Setup AutoScaling policy
+    // Setup AutoScaling policies
     const scaling = service.autoScaleTaskCount({ maxCapacity: 4 });
     scaling.scaleOnCpuUtilization("CpuScaling", {
       targetUtilizationPercent: 70,
@@ -77,5 +87,13 @@ export class EcsService extends cdk.Construct {
       scaleInCooldownSec: 60,
       scaleOutCooldownSec: 60
     });
+    scaling.scaleOnRequestCount("CountScaling", {
+      requestsPerTarget: 100,
+      targetGroup: tg
+    });
+
+    // Output the DNS where you can access your service
+    // tslint:disable-next-line: no-unused-expression
+    new cdk.CfnOutput(this, "loadbalancerDNS", { value: alb.dnsName });
   }
 }
