@@ -15,10 +15,12 @@ export class ECSPipelineStack extends cdk.Stack {
       versioned: true
     });
 
-    const containerRepo = ecr.Repository.import(this, "ECR", {
+    // Create an ECR resource and clean-up lifecycle rule
+    const repository = new ecr.Repository(this, "ECR", {
       repositoryName: "fargate-ecr"
     });
-    const repouri = containerRepo.repositoryUri.toString();
+    repository.addLifecycleRule({ tagPrefixList: ["dev"], maxImageCount: 10 });
+    repository.addLifecycleRule({ maxImageAgeDays: 7 });
 
     const buildProject = new codebuild.PipelineProject(this, "Build", {
       description: "Build project for the Fargate pipeline",

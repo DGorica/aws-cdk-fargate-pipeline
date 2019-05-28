@@ -20,36 +20,15 @@ export class AwsCdkStack extends cdk.Stack {
     const vpc = VpcNetwork.import(this, "VPC", provider.vpcProps);
     vpc.export();
 
-    // Create an ECR resource and clean-up lifecycle rule
-    const repository = new ecr.Repository(this, "ECR", {
-      repositoryName: "fargate-ecr"
-    });
-    repository.addLifecycleRule({ tagPrefixList: ["dev"], maxImageCount: 10 });
-    repository.addLifecycleRule({ maxImageAgeDays: 7 });
-    repository.export();
-
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, clusterName, { vpc });
     cluster.export();
 
-    // Instantiate Amazon ECS Service with an automatic load balancer
-
-    const ecsService1 = new ecs.LoadBalancedFargateService(
-      this,
-      "FargateService1",
-      {
-        cluster,
-        memoryMiB: "512",
-        image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
-        createLogs: true,
-        publicTasks: true
-      }
-    );
-
     // Create a new service
-    const service2 = new EcsService(this, "service2", {
+    const service1 = new EcsService(this, "FService", {
       cluster,
-      serviceName: "Service2"
+      serviceName: "Service1",
+      port: 80
     });
   }
 }
