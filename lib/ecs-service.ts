@@ -1,10 +1,13 @@
 import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
 import elbv2 = require("@aws-cdk/aws-elasticloadbalancingv2");
+import serviced = require("@aws-cdk/aws-servicediscovery");
 
 // Interface for public ecs service
 export interface IECSClusterProps {
   cluster: ecs.Cluster;
+  namespace: serviced.Service;
+  image: ecs.ContainerImage;
   serviceName: string;
   port: number;
 }
@@ -53,9 +56,9 @@ export class EcsService extends cdk.Construct {
     );
 
     // Associate container to task def
-    const container = fargateTaskDefinition
+    fargateTaskDefinition
       .addContainer("WebContainer", {
-        image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
+        image: props.image,
         logging
       })
       .addPortMappings({
@@ -72,7 +75,6 @@ export class EcsService extends cdk.Construct {
       desiredCount: 2,
       serviceName: props.serviceName
     });
-
     tg.addTarget(service);
 
     // Setup AutoScaling policies
@@ -92,8 +94,17 @@ export class EcsService extends cdk.Construct {
       targetGroup: tg
     });
 
+    // Register service in Cloud Map
+    props.namespace.registerLoadBalancer("SampleApp", {
+      loadBalancerDnsName: alb.loadBalancerDnsName,
+      loadBalancerCanonicalHostedZoneId: alb.loadBalancerCanonicalHostedZoneId,
+      node: this.node
+    });
+
     // Output the DNS where you can access your service
     // tslint:disable-next-line: no-unused-expression
-    new cdk.CfnOutput(this, "loadbalancerDNS", { value: alb.dnsName });
+    new cdk.CfnOutput(this, "loadbalancerDNS", {
+      value: alb.loadBalancerDnsName
+    });
   }
 }

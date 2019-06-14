@@ -1,10 +1,12 @@
 import ec2 = require("@aws-cdk/aws-ec2");
-import { VpcNetwork } from "@aws-cdk/aws-ec2";
 import ecs = require("@aws-cdk/aws-ecs");
 import cdk = require("@aws-cdk/cdk");
 import { EcsService } from "./ecs-service";
+import { CfnMesh } from "@aws-cdk/aws-appmesh";
+import serviced = require("@aws-cdk/aws-servicediscovery");
+import { RoutingPolicy } from "@aws-cdk/aws-servicediscovery";
 
-const clusterName: string = "CDK-ECSCluster";
+export const clusterName: string = "CDK-ECSCluster";
 
 export class AwsCdkStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -16,17 +18,35 @@ export class AwsCdkStack extends cdk.Stack {
         "tag:State": "Default"
       }
     });
-    const vpc = VpcNetwork.import(this, "VPC", provider.vpcProps);
-    vpc.export();
+    const vpc = ec2.Vpc.fromVpcAttributes(this, "VPC", provider.vpcProps);
+
+    // Create a service dicovery namespace
+    const namespace = new serviced.PrivateDnsNamespace(this, "ServiceMap", {
+      vpc,
+      name: "Microservices"
+    });
 
     // Create an ECS cluster
     const cluster = new ecs.Cluster(this, clusterName, { vpc });
-    cluster.export();
 
-    // Create a new service
-    const service1 = new EcsService(this, "FService", {
+    // Create an App Mesh
+    const mesh = new CfnMesh(this, "AppMesh", {
+      meshName: clusterName
+    });
+
+    // Create a new service in Cloud Map
+    const micromap = new serviced.Service(this, "MicroMap", {
+      namespace,
+      loadBalancer: true,
+      routingPolicy: RoutingPolicy.Weighted
+    });
+
+    // Create a new ECS service
+    const service = new EcsService(this, "FService", {
       cluster,
-      serviceName: "Service1",
+      namespace: micromap,
+      image: ecs.ContainerImage.fromRegistry("amazon/amazon-ecs-sample"),
+      serviceName: "MicroUno",
       port: 80
     });
   }

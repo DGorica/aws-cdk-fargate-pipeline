@@ -10,30 +10,32 @@
     "build": "tsc",
     "watch": "tsc -w",
     "cdk": "cdk",
-    "publish": "aws s3 cp /app/* <bucketname>/app/"
+    "publish": "aws s3 cp app/app.zip s3://cdk-pipeline-stack-artifact15cf5995-1j96bzw6h2vpk/"
   },
   "devDependencies": {
-    "@aws-cdk/assert": "^0.30.0",
-    "@types/jest": "^24.0.12",
+    "@aws-cdk/assert": "^0.34.0",
+    "@types/jest": "^24.0.13",
     "@types/node": "8.10.45",
-    "aws-cdk": "^0.30.0",
-    "jest": "^24.7.1",
+    "aws-cdk": "^0.34.0",
+    "jest": "^24.8.0",
     "ts-jest": "^24.0.2",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.5.1"
   },
   "dependencies": {
-    "@aws-cdk/aws-appmesh": "^0.30.0",
-    "@aws-cdk/aws-codebuild": "^0.30.0",
-    "@aws-cdk/aws-codecommit": "^0.30.0",
-    "@aws-cdk/aws-codepipeline": "^0.30.0",
-    "@aws-cdk/aws-codepipeline-actions": "^0.30.0",
-    "@aws-cdk/aws-ec2": "^0.30.0",
-    "@aws-cdk/aws-ecr": "^0.30.0",
-    "@aws-cdk/aws-ecs": "^0.30.0",
-    "@aws-cdk/aws-elasticloadbalancingv2": "^0.30.0",
-    "@aws-cdk/aws-s3": "^0.30.0",
-    "@aws-cdk/aws-sns": "^0.30.0",
-    "@aws-cdk/cdk": "^0.30.0",
+    "@aws-cdk/aws-appmesh": "^0.34.0",
+    "@aws-cdk/aws-codebuild": "^0.34.0",
+    "@aws-cdk/aws-codecommit": "^0.34.0",
+    "@aws-cdk/aws-codepipeline": "^0.34.0",
+    "@aws-cdk/aws-codepipeline-actions": "^0.34.0",
+    "@aws-cdk/aws-ec2": "^0.34.0",
+    "@aws-cdk/aws-ecr": "^0.34.0",
+    "@aws-cdk/aws-ecs": "^0.34.0",
+    "@aws-cdk/aws-elasticloadbalancingv2": "^0.34.0",
+    "@aws-cdk/aws-iam": "^0.34.0",
+    "@aws-cdk/aws-s3": "^0.34.0",
+    "@aws-cdk/aws-servicediscovery": "^0.34.0",
+    "@aws-cdk/aws-sns": "^0.34.0",
+    "@aws-cdk/cdk": "^0.34.0",
     "source-map-support": "^0.5.9"
   }
 }

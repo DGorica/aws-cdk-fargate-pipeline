@@ -3,7 +3,9 @@
 node_modules
 templates
 .vscode
-
+dist
+app
+cdk.out
 # CDK asset staging directory
 .cdk.staging
 cdk.context.json

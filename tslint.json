@@ -16,6 +16,6 @@
   },
   "rulesDirectory": [],
   "linterOptions": {
-    "exclude": ["/node_modules", "/@aws-cdk"]
+    "exclude": ["node_modules/*", "@aws-cdk/*"]
   }
 }
